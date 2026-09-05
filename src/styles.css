@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-serif: "Source Serif 4", "Georgia", serif;
+  --font-sans: "Figtree", "Segoe UI", system-ui, sans-serif;
+
+  --color-paper: #f3eee4;
+  --color-paper-deep: #e7dfd0;
+  --color-sheet: #fffaf1;
+  --color-ink: #1c1915;
+  --color-ink-soft: #3f3a33;
+  --color-muted: #6b645a;
+  --color-faint: #8a8276;
+  --color-line: color-mix(in oklab, var(--color-ink) 14%, transparent);
+  --color-line-strong: color-mix(in oklab, var(--color-ink) 28%, transparent);
+  --color-blue: #1a6fa8;
+  --color-blue-deep: #125887;
+  --color-blue-fog: color-mix(in oklab, var(--color-blue) 12%, var(--color-sheet));
+  --color-stamp: #9b3b32;
+  --color-ok: #2f6b4f;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+
+  --shadow-sheet: 0 18px 50px color-mix(in oklab, var(--color-ink) 10%, transparent);
+  --shadow-mark: 0 8px 20px color-mix(in oklab, var(--color-blue) 35%, transparent);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-image:
+      radial-gradient(1200px 500px at 12% -10%, color-mix(in oklab, var(--color-blue) 8%, transparent), transparent 60%),
+      radial-gradient(900px 420px at 110% 0%, color-mix(in oklab, var(--color-stamp) 6%, transparent), transparent 55%);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-blue) 28%, white);
+    color: var(--color-ink);
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a.nav-link[data-status="active"] {
+    background: var(--color-blue-fog);
+    color: var(--color-blue-deep);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

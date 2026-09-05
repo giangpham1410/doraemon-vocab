@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Doraemon Vol. 1 — Corrected English",
+      "hasCanvas": false,
+      "bodyTextLen": 3051,
+      "bodyTextHash": "6370bcb6276e309d9330938140c25943c8f6c6473aab99c51362f290de858266",
+      "bodyTextPrefix": "Doraemon Vol. 1 Corrected English script Contents Review ENGLISH",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Doraemon Vol. 1 — Corrected English",
+      "hasCanvas": false,
+      "bodyTextLen": 3035,
+      "bodyTextHash": "79f08eeccdfa61461df1e2f17c4e2222b791b479805736a8c62831564e68c761",
+      "bodyTextPrefix": "Doraemon Vol. 1 Corrected English script ENGLISH REVIEW Doraemon",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
