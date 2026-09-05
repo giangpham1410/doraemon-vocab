@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Type } from "lucide-react";
+import { ChevronLeft, ChevronRight, Square, Type, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Chapter } from "@/data/types";
 import { getAdjacent } from "@/data/chapters";
@@ -9,6 +9,8 @@ import {
   readTypeSize,
   rememberChapter,
   saveTypeSize,
+  speakEnglish,
+  stopSpeaking,
   type TypeSize,
 } from "@/lib/reading";
 import { cn } from "@/lib/utils";
@@ -19,13 +21,35 @@ const sizeClass: Record<TypeSize, string> = {
   lg: "text-lg leading-9",
 };
 
+function SpeakButton({ active, onClick }: { active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={active ? "Stop reading this line aloud" : "Read this line aloud"}
+      aria-pressed={active}
+      className={cn(
+        "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors",
+        active
+          ? "border-blue bg-blue text-sheet"
+          : "border-line text-muted hover:border-blue hover:bg-blue-fog hover:text-blue-deep",
+      )}
+    >
+      {active ? <Square className="size-3 fill-current" /> : <Volume2 className="size-3.5" />}
+    </button>
+  );
+}
+
 export function ScriptView({ chapter }: { chapter: Chapter }) {
   const { prev, next } = getAdjacent(chapter.id);
   const [size, setSize] = useState<TypeSize>("md");
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
 
   useEffect(() => {
     setSize(readTypeSize());
     rememberChapter(chapter.id);
+    // Leaving a chapter (or unmounting) shouldn't leave audio playing behind.
+    return () => stopSpeaking();
   }, [chapter.id]);
 
   const plain = useMemo(() => chapterToPlainText(chapter), [chapter]);
@@ -44,6 +68,19 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
     a.download = `doraemon-vol1-${String(chapter.number).padStart(2, "0")}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function toggleSpeak(id: string, text: string) {
+    if (speakingId === id) {
+      stopSpeaking();
+      setSpeakingId(null);
+      return;
+    }
+    setSpeakingId(id);
+    const utterance = await speakEnglish(text, {
+      onEnd: () => setSpeakingId((current) => (current === id ? null : current)),
+    });
+    if (!utterance) setSpeakingId(null);
   }
 
   return (
@@ -73,49 +110,58 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
           OCR title: {chapter.ocrTitle}
         </div>
         <ol className={cn("space-y-5 px-5 py-7 sm:px-10 sm:py-10", sizeClass[size])}>
-          {chapter.lines.map((line, i) => (
-            <li key={`${chapter.id}-${i}`}>
-              {line.kind === "dialogue" ? (
-                <div>
-                  {line.speaker ? (
-                    <p className="mb-0.5 font-sans text-xs font-semibold uppercase tracking-wider text-blue">
-                      {line.speaker}
-                    </p>
-                  ) : null}
-                  <p className="font-serif text-ink">{line.text}</p>
-                  {line.phonetic ? (
-                    <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
-                  ) : null}
+          {chapter.lines.map((line, i) => {
+            const lineId = `${chapter.id}-${i}`;
+            const speaking = speakingId === lineId;
+            return (
+              <li key={lineId}>
+                <div className="flex items-start gap-2">
+                  <SpeakButton active={speaking} onClick={() => toggleSpeak(lineId, line.text)} />
+                  <div className="min-w-0 flex-1">
+                    {line.kind === "dialogue" ? (
+                      <div>
+                        {line.speaker ? (
+                          <p className="mb-0.5 font-sans text-xs font-semibold uppercase tracking-wider text-blue">
+                            {line.speaker}
+                          </p>
+                        ) : null}
+                        <p className="font-serif text-ink">{line.text}</p>
+                        {line.phonetic ? (
+                          <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {line.kind === "narration" ? (
+                      <div>
+                        <p className="font-serif italic text-ink-soft">{line.text}</p>
+                        {line.phonetic ? (
+                          <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {line.kind === "sfx" ? (
+                      <div>
+                        <p className="font-sans text-sm font-medium tracking-wide text-stamp">
+                          {line.text}
+                        </p>
+                        {line.phonetic ? (
+                          <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {line.kind === "note" ? (
+                      <div className="rounded-[var(--radius-sm)] bg-paper-deep px-3 py-2">
+                        <p className="font-sans text-sm text-muted">{line.text}</p>
+                        {line.phonetic ? (
+                          <p className="mt-0.5 font-mono text-xs text-muted/80">{line.phonetic}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
-              ) : null}
-              {line.kind === "narration" ? (
-                <div>
-                  <p className="font-serif italic text-ink-soft">{line.text}</p>
-                  {line.phonetic ? (
-                    <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
-                  ) : null}
-                </div>
-              ) : null}
-              {line.kind === "sfx" ? (
-                <div>
-                  <p className="font-sans text-sm font-medium tracking-wide text-stamp">
-                    {line.text}
-                  </p>
-                  {line.phonetic ? (
-                    <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
-                  ) : null}
-                </div>
-              ) : null}
-              {line.kind === "note" ? (
-                <div className="rounded-[var(--radius-sm)] bg-paper-deep px-3 py-2">
-                  <p className="font-sans text-sm text-muted">{line.text}</p>
-                  {line.phonetic ? (
-                    <p className="mt-0.5 font-mono text-xs text-muted/80">{line.phonetic}</p>
-                  ) : null}
-                </div>
-              ) : null}
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
       </div>
 

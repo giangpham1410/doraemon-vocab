@@ -1,5 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen, ListChecks, Search } from "lucide-react";
+import { BookOpen, ListChecks, Search, Sparkles } from "lucide-react";
+import { changelog } from "@/data/changelog";
+
+const latestVersion = changelog[0]?.version;
 
 export function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -32,6 +35,18 @@ export function Shell({ children }: { children: React.ReactNode }) {
             >
               <ListChecks className="size-4" />
               <span className="hidden sm:inline">Review</span>
+            </Link>
+            <Link
+              to="/whats-new"
+              className="nav-link inline-flex h-11 items-center gap-2 rounded-[var(--radius-md)] px-3 text-sm font-medium text-ink-soft hover:bg-paper-deep hover:text-ink"
+            >
+              <Sparkles className="size-4" />
+              <span className="hidden sm:inline">What&apos;s new</span>
+              {latestVersion ? (
+                <span className="rounded-full bg-blue-fog px-1.5 py-0.5 text-[10px] font-semibold text-blue-deep">
+                  v{latestVersion}
+                </span>
+              ) : null}
             </Link>
           </nav>
         </div>
