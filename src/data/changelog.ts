@@ -11,6 +11,15 @@ export type ChangelogEntry = {
  */
 export const changelog: ChangelogEntry[] = [
   {
+    version: "1.3.0",
+    date: "2026-09-05",
+    title: "Vietnamese meaning",
+    changes: [
+      "Added a translate button next to every line — tap it to reveal the Vietnamese meaning of the whole sentence, in context.",
+      "Hidden by default, so you can try reading and listening first, then check yourself.",
+    ],
+  },
+  {
     version: "1.2.0",
     date: "2026-09-05",
     title: "Read-aloud",
@@ -25,7 +34,7 @@ export const changelog: ChangelogEntry[] = [
     title: "American-English phonetics",
     changes: [
       "Every line now has a General American IPA transcription underneath the English text.",
-      "\"｜\" marks a natural speech pause (comma, dash, sentence break) inside a line.",
+      '"｜" marks a natural speech pause (comma, dash, sentence break) inside a line.',
     ],
   },
   {
@@ -35,7 +44,7 @@ export const changelog: ChangelogEntry[] = [
     changes: [
       "Doraemon Volume 1 (16 chapters) as a clean, readable English script.",
       "OCR line-breaks joined into full sentences; spelling, names, and grammar corrected.",
-      "Chapter search, adjustable type size, and a \"What was fixed\" page explaining the corrections.",
+      'Chapter search, adjustable type size, and a "What was fixed" page explaining the corrections.',
     ],
   },
 ];

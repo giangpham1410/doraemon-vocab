@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Square, Type, Volume2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Languages, Square, Type, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Chapter } from "@/data/types";
 import { getAdjacent } from "@/data/chapters";
@@ -40,14 +40,43 @@ function SpeakButton({ active, onClick }: { active: boolean; onClick: () => void
   );
 }
 
+function MeaningButton({ active, onClick }: { active: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={active ? "Hide Vietnamese meaning" : "Show Vietnamese meaning"}
+      aria-pressed={active}
+      className={cn(
+        "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold transition-colors",
+        active
+          ? "border-blue bg-blue text-sheet"
+          : "border-line text-muted hover:border-blue hover:bg-blue-fog hover:text-blue-deep",
+      )}
+    >
+      <Languages className="size-3.5" />
+    </button>
+  );
+}
+
+function MeaningText({ text }: { text: string }) {
+  return (
+    <p className="mt-1.5 rounded-[var(--radius-sm)] bg-blue-fog px-2.5 py-1.5 font-sans text-sm text-blue-deep">
+      {text}
+    </p>
+  );
+}
+
 export function ScriptView({ chapter }: { chapter: Chapter }) {
   const { prev, next } = getAdjacent(chapter.id);
   const [size, setSize] = useState<TypeSize>("md");
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [revealedIds, setRevealedIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     setSize(readTypeSize());
     rememberChapter(chapter.id);
+    setRevealedIds(new Set());
     // Leaving a chapter (or unmounting) shouldn't leave audio playing behind.
     return () => stopSpeaking();
   }, [chapter.id]);
@@ -83,6 +112,18 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
     if (!utterance) setSpeakingId(null);
   }
 
+  function toggleMeaning(id: string) {
+    setRevealedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
   return (
     <article>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
@@ -113,10 +154,16 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
           {chapter.lines.map((line, i) => {
             const lineId = `${chapter.id}-${i}`;
             const speaking = speakingId === lineId;
+            const revealed = revealedIds.has(lineId);
             return (
               <li key={lineId}>
                 <div className="flex items-start gap-2">
-                  <SpeakButton active={speaking} onClick={() => toggleSpeak(lineId, line.text)} />
+                  <div className="flex shrink-0 flex-col gap-1.5">
+                    <SpeakButton active={speaking} onClick={() => toggleSpeak(lineId, line.text)} />
+                    {line.meaning ? (
+                      <MeaningButton active={revealed} onClick={() => toggleMeaning(lineId)} />
+                    ) : null}
+                  </div>
                   <div className="min-w-0 flex-1">
                     {line.kind === "dialogue" ? (
                       <div>
@@ -129,6 +176,7 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
                         {line.phonetic ? (
                           <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
                         ) : null}
+                        {revealed && line.meaning ? <MeaningText text={line.meaning} /> : null}
                       </div>
                     ) : null}
                     {line.kind === "narration" ? (
@@ -137,6 +185,7 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
                         {line.phonetic ? (
                           <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
                         ) : null}
+                        {revealed && line.meaning ? <MeaningText text={line.meaning} /> : null}
                       </div>
                     ) : null}
                     {line.kind === "sfx" ? (
@@ -147,6 +196,7 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
                         {line.phonetic ? (
                           <p className="mt-0.5 font-mono text-xs text-muted">{line.phonetic}</p>
                         ) : null}
+                        {revealed && line.meaning ? <MeaningText text={line.meaning} /> : null}
                       </div>
                     ) : null}
                     {line.kind === "note" ? (
@@ -155,6 +205,7 @@ export function ScriptView({ chapter }: { chapter: Chapter }) {
                         {line.phonetic ? (
                           <p className="mt-0.5 font-mono text-xs text-muted/80">{line.phonetic}</p>
                         ) : null}
+                        {revealed && line.meaning ? <MeaningText text={line.meaning} /> : null}
                       </div>
                     ) : null}
                   </div>
